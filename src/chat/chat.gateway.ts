@@ -43,20 +43,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('joinRoom')
   handleJoinRoom(client: Socket, payload: { room: string }): void {
     const { room } = payload;
+    const joined = this.chatService.joinRoom(room, client.id);
 
-    client.join(room);
-    client.emit('joinRoom', room);
+    if (joined) {
+      client.join(room);
+      client.emit('joinRoom', room);
 
-    console.log(`Client ${client.id} joined room: ${room}`);
+      const users = this.chatService.getRoomUsers(room);
+      console.log(`Client ${client.id} joined a room: ${room}`);
+      console.log(`${users.length} user(s) here.`);
+      return;
+    }
+
+    console.log(`Client ${client.id} failed to join a room: ${room}`);
   }
 
   @SubscribeMessage('leaveRoom')
   handleLeaveRoom(client: Socket, payload: { room: string }): void {
     const { room } = payload;
+    const left = this.chatService.leaveRoom(room, client.id);
 
-    client.leave(room);
-    client.emit('leaveRoom', room);
+    if (left) {
+      client.leave(room);
+      client.emit('leaveRoom', room);
 
-    console.log(`Client ${client.id} left room: ${room}`);
+      const users = this.chatService.getRoomUsers(room);
+      console.log(`Client ${client.id} left room: ${room}`);
+      console.log(`${users.length} user(s) here.`);
+      return;
+    }
+
+    console.log(`Client ${client.id} failed to leave a room: ${room}`);
   }
 }
