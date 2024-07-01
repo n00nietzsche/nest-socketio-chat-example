@@ -21,9 +21,11 @@ form.addEventListener('submit', (e) => {
   }
 });
 
-socket.on('message', (message) => {
+socket.on('message', (response) => {
+  const { room, message, sender } = response;
+
   const item = document.createElement('li');
-  item.textContent = message;
+  item.textContent = `${room}/${sender}: ${message}`;
   messages.appendChild(item);
   window.scrollTo(0, document.body.scrollHeight);
 });
