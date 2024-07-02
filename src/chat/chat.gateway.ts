@@ -17,6 +17,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
+    console.log('클라이언트로 부터 전달받은 데이터', client.handshake.query);
   }
 
   handleDisconnect(client: Socket) {

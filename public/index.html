@@ -57,10 +57,32 @@
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
+    <h1>Socket.IO chat</h1>
+
+    <div id="area_enterUserInfo" class="">
+      <input
+        id="room"
+        placeholder="Room"
+        minlength="1"
+        required
+        autocomplete="off"
+      />
+      <input
+        id="nickname"
+        placeholder="Nickname"
+        minlength="1"
+        required
+        autocomplete="off"
+      />
+      <button id="enterButton">입장하기</button>
+    </div>
+
+    <div class="chatRoomUI" id="area_enterMessage" style="display: none">
+      <ul id="messages"></ul>
+      <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+      </form>
+    </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="./client.js"></script>
