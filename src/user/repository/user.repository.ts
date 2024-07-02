@@ -1,4 +1,4 @@
-import { UserModel } from './user.model';
+import { UserModel } from '../model/user.model';
 
 export class UserRepository {
   private users: Map<string, UserModel> = new Map();
