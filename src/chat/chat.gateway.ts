@@ -18,10 +18,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
     console.log('클라이언트로 부터 전달받은 데이터', client.handshake.query);
+
+    const { nickname } = client.handshake.query;
+
+    // nickname 이 입력되지 않았다면 연결을 끊는다.
+    if (!nickname) {
+      client.disconnect();
+      return;
+    }
+
+    // nickname 이 문자열이 아니면 연결을 끊는다.
+    if (typeof nickname !== 'string') {
+      client.disconnect();
+      return;
+    }
+
+    this.chatService.enterUser(client.id, nickname);
   }
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
+
+    this.chatService.leaveUser(client.id);
   }
 
   // ws://localhost:3000 로 연결 후 `message` 이벤트를 전송하면 payload 가 들어옴
@@ -35,7 +53,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(payload.room).emit('message', {
       room: payload.room,
       message: payload.message,
-      sender: client.id,
+      sender: this.chatService.getUserNickname(client.id),
     });
 
     console.log(`Message sent to room ${payload.room}`);
