@@ -46,7 +46,6 @@ function activateChat(nickname, room) {
       socket.emit('message', {
         room,
         message: input.value,
-        sender: 'client',
       });
 
       input.value = '';
