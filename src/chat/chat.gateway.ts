@@ -69,12 +69,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('joinRoom', room);
 
       const users = this.chatService.getRoomUsers(room);
-      console.log(`Client ${client.id} joined a room: ${room}`);
-      console.log(`${users.length} user(s) here.`);
+      const nickname = this.chatService.getUserNickname(client.id);
+
+      this.sendNotify(
+        `"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`,
+        room,
+      );
+      this.sendNotify(`현재 ${users.length}명이 이 방에 있습니다.`, room);
       return;
     }
 
-    console.log(`Client ${client.id} failed to join a room: ${room}`);
+    console.log(`${client.id} failed to join a room: ${room}`);
   }
 
   @SubscribeMessage('leaveRoom')
@@ -87,11 +92,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('leaveRoom', room);
 
       const users = this.chatService.getRoomUsers(room);
-      console.log(`Client ${client.id} left room: ${room}`);
-      console.log(`${users.length} user(s) here.`);
+      const nickname = this.chatService.getUserNickname(client.id);
+
+      this.sendNotify(
+        `"${nickname}" 님이 "${room}" 방에서 퇴장하셨습니다.`,
+        room,
+      );
+      this.sendNotify(`현재 ${users.length}명이 이 방에 있습니다.`, room);
       return;
     }
 
-    console.log(`Client ${client.id} failed to leave a room: ${room}`);
+    console.log(`${client.id} failed to leave a room: ${room}`);
+  }
+
+  sendNotify(message: string, room: string) {
+    this.server.to(room).emit('notify', {
+      room,
+      message,
+      sender: '관리자',
+    });
   }
 }
