@@ -84,7 +84,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    console.log(`${client.id} failed to join a room: ${room}`);
+    this.sendNotifyToUser('방이 꽉 찼습니다.', client.id);
+    client.disconnect();
   }
 
   @SubscribeMessage('leaveRoom')
@@ -115,6 +116,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       room,
       message,
       sender: '관리자',
+    });
+  }
+
+  sendNotifyToUser(message: string, userId: string) {
+    this.server.to(userId).emit('notify', {
+      room: '',
+      message,
+      sender: '관리자',
+      state: 'FULL',
     });
   }
 
