@@ -6,7 +6,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  main(): string {
+    return `<a href="/index.html">웹소켓 테스트 클라이언트로 이동하기</a>`;
   }
 }
