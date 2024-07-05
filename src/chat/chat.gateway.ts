@@ -72,14 +72,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.join(room);
       client.emit('joinRoom', room);
 
-      const users = this.chatService.getRoomUsers(room);
       const nickname = this.chatService.getUserNickname(client.id);
 
       this.sendNotify(
         `"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`,
         room,
       );
-      this.sendNotify(`현재 ${users.length}명이 이 방에 있습니다.`, room);
+
+      this.notifyParticipantCount(room);
       return;
     }
 
@@ -95,14 +95,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.leave(room);
       client.emit('leaveRoom', room);
 
-      const users = this.chatService.getRoomUsers(room);
       const nickname = this.chatService.getUserNickname(client.id);
 
       this.sendNotify(
         `"${nickname}" 님이 "${room}" 방에서 퇴장하셨습니다.`,
         room,
       );
-      this.sendNotify(`현재 ${users.length}명이 이 방에 있습니다.`, room);
+
+      this.notifyParticipantCount(room);
       return;
     }
 
@@ -115,5 +115,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message,
       sender: '관리자',
     });
+  }
+
+  notifyParticipantCount(room: string) {
+    const users = this.chatService.getRoomUsers(room);
+    this.sendNotify(`현재 ${users.length}명이 이 방에 있습니다.`, room);
   }
 }
