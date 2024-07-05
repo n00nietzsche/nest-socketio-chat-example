@@ -42,7 +42,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const leftRooms = this.chatService.leaveUser(client.id);
 
     leftRooms.forEach((room) => {
-      this.sendNotify(`"${nickname}" 님이 퇴장하셨습니다.`, room);
+      this.notify(`"${nickname}" 님이 퇴장하셨습니다.`, room);
       this.notifyParticipantCount(room);
     });
   }
@@ -75,10 +75,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const nickname = this.chatService.getUserNickname(client.id);
 
-      this.sendNotify(
-        `"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`,
-        room,
-      );
+      this.notify(`"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`, room);
 
       this.notifyParticipantCount(room);
       return;
@@ -99,10 +96,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const nickname = this.chatService.getUserNickname(client.id);
 
-      this.sendNotify(
-        `"${nickname}" 님이 "${room}" 방에서 퇴장하셨습니다.`,
-        room,
-      );
+      this.notify(`"${nickname}" 님이 "${room}" 방에서 퇴장하셨습니다.`, room);
 
       this.notifyParticipantCount(room);
       return;
@@ -111,7 +105,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`${client.id} failed to leave a room: ${room}`);
   }
 
-  sendNotify(message: string, room: string) {
+  @SubscribeMessage('kickUser')
+  handleKickUser(client: Socket, payload: { nickname: string }): void {
+    console.log('payload', payload);
+    const { nickname } = payload;
+    console.log(`Kicking user: ${nickname}`);
+    const userId = this.chatService.getUserIdByNickname(nickname);
+
+    this.kickUser(userId);
+  }
+
+  notify(message: string, room: string) {
     this.server.to(room).emit('notify', {
       room,
       message,
@@ -130,6 +134,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   notifyParticipantCount(room: string) {
     const users = this.chatService.getRoomUsers(room);
-    this.sendNotify(`현재 ${users.length}명이 이 방에 있습니다.`, room);
+    this.notify(`현재 ${users.length}명이 이 방에 있습니다.`, room);
+  }
+
+  kickUser(userId: string) {
+    const user = this.chatService.getUser(userId);
+    const client = this.server.sockets.sockets.get(userId);
+
+    if (client) {
+      user.joiningRooms.forEach((room) => {
+        this.notify(`"${user.nickname}" 님이 강퇴당했습니다.`, room);
+      });
+
+      client.disconnect(true);
+    }
   }
 }

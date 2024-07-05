@@ -1,3 +1,4 @@
+// 방 입장 전
 document.addEventListener('DOMContentLoaded', () => {
   const $enterButton = document.getElementById('button_enter');
 
@@ -9,16 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
       activateChat(nickname, room);
     }
   });
-
-  const $kickButton = document.getElementById('button_kick');
-
-  $kickButton.addEventListener('click', () => {
-    const nickname = prompt('강퇴할 유저의 닉네임을 입력해주세요.');
-
-    console.log(nickname);
-  });
 });
 
+// 방 입장하면 UI 변경하는 함수
 function displayChatUi() {
   const $enterUserInfoArea = document.getElementById('area_enterUserInfo');
   const $enterMessageArea = document.getElementById('area_enterMessage');
@@ -27,6 +21,7 @@ function displayChatUi() {
   $enterMessageArea.style.display = 'block';
 }
 
+// Socket.IO 연결 시작 및 채팅에 필요한 이벤트 바인딩
 function activateChat(nickname, room) {
   console.log('room', room);
   console.log('nickname', nickname);
@@ -77,5 +72,15 @@ function activateChat(nickname, room) {
     item.textContent = `${room}/${sender}: ${message}`;
     messages.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
+  });
+
+  const $kickButton = document.getElementById('button_kick');
+
+  $kickButton.addEventListener('click', () => {
+    const nickname = prompt('강퇴할 유저의 닉네임을 입력해주세요.');
+
+    socket.emit('kickUser', {
+      nickname,
+    });
   });
 }
