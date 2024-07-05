@@ -13,8 +13,10 @@ export class ChatService {
   }
 
   leaveUser(userId: string): void {
+    const user = this.getUser(userId);
+
     // 사용자가 참여 중인 모든 방에서 나간다.
-    this.getUser(userId).joiningRooms.forEach((room) => {
+    user.joiningRooms.forEach((room) => {
       this.leaveRoom(room, userId);
     });
 
@@ -39,6 +41,9 @@ export class ChatService {
     }
 
     occupants.add(userId);
+    const user = this.getUser(userId);
+    user.joinRoom(room);
+
     return true;
   }
 
@@ -47,12 +52,16 @@ export class ChatService {
       return false;
     }
 
-    const users = this.rooms.get(room);
-    if (!users.has(userId)) {
+    const occupants = this.rooms.get(room);
+    if (!occupants.has(userId)) {
       return false;
     }
 
-    users.delete(userId);
+    occupants.delete(userId);
+
+    const user = this.getUser(userId);
+    user.leaveRoom(room);
+
     return true;
   }
 
