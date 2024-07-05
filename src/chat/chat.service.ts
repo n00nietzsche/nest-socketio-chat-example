@@ -14,7 +14,7 @@ export class ChatService {
 
   leaveUser(userId: string): void {
     // 사용자가 참여 중인 모든 방에서 나간다.
-    this.userService.findUser(userId).joiningRooms.forEach((room) => {
+    this.getUser(userId).joiningRooms.forEach((room) => {
       this.leaveRoom(room, userId);
     });
 
@@ -22,7 +22,7 @@ export class ChatService {
   }
 
   getUserNickname(userId: string): string {
-    return this.userService.findUser(userId).nickname;
+    return this.getUser(userId).nickname;
   }
 
   joinRoom(room: string, userId: string): boolean {
@@ -71,5 +71,9 @@ export class ChatService {
     }
 
     return this.rooms.get(room).size;
+  }
+
+  getUser(userId: string) {
+    return this.userService.findUser(userId);
   }
 }
