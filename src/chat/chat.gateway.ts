@@ -38,8 +38,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
+    const nickname = this.chatService.getUserNickname(client.id);
+    const leftRooms = this.chatService.leaveUser(client.id);
 
-    this.chatService.leaveUser(client.id);
+    leftRooms.forEach((room) => {
+      this.sendNotify(`"${nickname}" 님이 퇴장하셨습니다.`, room);
+    });
   }
 
   // ws://localhost:3000 로 연결 후 `message` 이벤트를 전송하면 payload 가 들어옴
