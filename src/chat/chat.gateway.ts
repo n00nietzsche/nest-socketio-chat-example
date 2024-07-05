@@ -43,6 +43,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     leftRooms.forEach((room) => {
       this.sendNotify(`"${nickname}" 님이 퇴장하셨습니다.`, room);
+      this.notifyParticipantCount(room);
     });
   }
 
