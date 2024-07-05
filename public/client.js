@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const $enterButton = document.getElementById('enterButton');
+  const $enterButton = document.getElementById('button_enter');
 
   $enterButton.addEventListener('click', () => {
     const room = document.getElementById('room').value;
@@ -8,6 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (room && nickname) {
       activateChat(nickname, room);
     }
+  });
+
+  const $kickButton = document.getElementById('button_kick');
+
+  $kickButton.addEventListener('click', () => {
+    const nickname = prompt('강퇴할 유저의 닉네임을 입력해주세요.');
+
+    console.log(nickname);
   });
 });
 
