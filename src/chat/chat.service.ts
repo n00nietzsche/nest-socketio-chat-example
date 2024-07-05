@@ -12,8 +12,9 @@ export class ChatService {
     this.userService.createUser(userId, nickname);
   }
 
-  leaveUser(userId: string): void {
+  leaveUser(userId: string): string[] {
     const user = this.getUser(userId);
+    const leftRooms = [...user.joiningRooms];
 
     // 사용자가 참여 중인 모든 방에서 나간다.
     user.joiningRooms.forEach((room) => {
@@ -21,6 +22,7 @@ export class ChatService {
     });
 
     this.userService.deleteUser(userId);
+    return leftRooms;
   }
 
   getUserNickname(userId: string): string {
