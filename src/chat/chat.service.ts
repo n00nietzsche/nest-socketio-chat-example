@@ -6,7 +6,7 @@ export class ChatService {
   constructor(private userService: UserService) {} // UserService 를 주입받는다.
 
   private rooms: Map<string, Set<string>> = new Map();
-  private readonly MAX_ROOM_CAPACITY = 10; // 최대 인원 수
+  private readonly MAX_ROOM_CAPACITY = 3; // 최대 인원 수
 
   enterUser(userId: string, nickname: string): void {
     this.userService.createUser(userId, nickname);
@@ -30,12 +30,15 @@ export class ChatService {
       this.rooms.set(room, new Set());
     }
 
-    const users = this.rooms.get(room);
-    if (users.size >= this.MAX_ROOM_CAPACITY) {
+    const occupants = this.rooms.get(room);
+
+    // 당사자가 방에 참여하기 전의 입장자 수를 세기 때문에 >= 기호를 써야 함
+    if (occupants.size >= this.MAX_ROOM_CAPACITY) {
+      console.log('방이 꽉 찼습니다.');
       return false;
     }
 
-    users.add(userId);
+    occupants.add(userId);
     return true;
   }
 
