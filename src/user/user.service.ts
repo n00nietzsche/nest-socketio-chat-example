@@ -38,4 +38,12 @@ export class UserService {
 
     return this.userRepository.deleteUser(id);
   }
+
+  findUserIdByNickname(nickname: string) {
+    if (!nickname) {
+      throw new Error('닉네임을 입력해주세요.');
+    }
+
+    return this.userRepository.findUserIdByNickname(nickname);
+  }
 }

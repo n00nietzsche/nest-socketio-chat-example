@@ -20,4 +20,14 @@ export class UserRepository {
   deleteUser(id: string): boolean {
     return this.users.delete(id);
   }
+
+  findUserIdByNickname(nickname: string): string {
+    for (const [id, user] of this.users) {
+      if (user.nickname === nickname) {
+        return id;
+      }
+    }
+
+    return null;
+  }
 }

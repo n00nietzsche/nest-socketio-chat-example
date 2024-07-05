@@ -90,4 +90,8 @@ export class ChatService {
   getUser(userId: string) {
     return this.userService.findUser(userId);
   }
+
+  getUserIdByNickname(nickname: string): string {
+    return this.userService.findUserIdByNickname(nickname);
+  }
 }
