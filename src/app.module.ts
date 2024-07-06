@@ -5,6 +5,7 @@ import { ChatModule } from './chat/chat.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { UserModule } from './user/user.module';
+import { RoomModule } from './room/room.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UserModule } from './user/user.module';
       rootPath: join(__dirname, '..', 'public'),
     }),
     UserModule,
+    RoomModule,
   ],
   controllers: [AppController],
   providers: [AppService],
