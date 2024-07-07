@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { RoomRepository } from './repository/room.repository';
+import { uuid } from 'uuidv4';
 
 @Injectable()
 export class RoomService {
@@ -29,67 +30,69 @@ export class RoomService {
     return this.getUser(userId).nickname;
   }
 
-  joinRoom(room: string, userId: string): boolean {
-    if (!this.getRoom(room)) {
-      this.roomRepository.save(room);
+  createRoom(roomName: string) {
+    return this.roomRepository.save({
+      name: roomName,
+      id: uuid(),
+    });
+  }
+
+  joinRoom(roomName: string, userId: string): boolean {
+    let room = this.getRoomByName(roomName);
+
+    if (!room) {
+      room = this.createRoom(roomName);
     }
 
-    const occupants = this.getRoom(room);
-
     // 당사자가 방에 참여하기 전의 입장자 수를 세기 때문에 >= 기호를 써야 함
-    if (occupants.size >= 3) {
+    if (room.getParticipantCount() >= 3) {
       console.log('방이 꽉 찼습니다.');
       return false;
     }
 
-    occupants.add(userId);
+    room.join(userId);
+
     const user = this.getUser(userId);
-    user.joinRoom(room);
+    user.joinRoom(roomName);
 
     return true;
   }
 
-  leaveRoom(room: string, userId: string): boolean {
-    if (!this.getRoom(room)) {
+  leaveRoom(roomName: string, userId: string): boolean {
+    const room = this.getRoomByName(roomName);
+
+    if (!room) {
       return false;
     }
 
-    const occupants = this.getRoom(room);
-
-    if (!occupants.has(userId)) {
+    if (!room.isParticipant(userId)) {
       return false;
     }
 
-    occupants.delete(userId);
+    room.leave(userId);
 
     const user = this.getUser(userId);
-    user.leaveRoom(room);
+    user.leaveRoom(roomName);
 
     return true;
   }
 
-  getRoomUsers(room: string): string[] {
-    if (!this.getRoom(room)) {
+  getRoomUsers(roomName: string): string[] {
+    const room = this.getRoomByName(roomName);
+
+    if (!room) {
       return [];
     }
 
-    return Array.from(this.getRoom(room));
+    return Array.from(room.getParticipants());
   }
 
   getRooms(): string[] {
-    return this.roomRepository.getAllRooms();
+    return this.roomRepository.getAllRoomNames();
   }
 
-  getRoom(room: string) {
-    return this.roomRepository.find(room);
-  }
-
-  getRoomCapacity(room: string): number {
-    if (!this.getRoom(room)) {
-      return 0;
-    }
-
-    return this.getRoom(room).size;
+  getRoomByName(roomName: string) {
+    return this.roomRepository.findByName(roomName);
   }
 
   getUser(userId: string) {
@@ -98,5 +101,15 @@ export class RoomService {
 
   getUserIdByNickname(nickname: string): string {
     return this.userService.findUserIdByNickname(nickname);
+  }
+
+  getRoomCapacity(roomName: string): number {
+    const room = this.getRoomByName(roomName);
+
+    if (!room) {
+      return 0;
+    }
+
+    return room.getParticipantCount();
   }
 }
