@@ -20,3 +20,8 @@
 ## 실행 화면
 
 - 추가 예정
+
+## 메서드명 규칙
+
+- Repository -> save, find, update, delete
+- Service -> create, get, modify, remove
