@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
+import { RoomRepository } from './repository/room.repository';
 
 @Injectable()
 export class RoomService {
   constructor(private userService: UserService) {} // UserService 를 주입받는다.
 
-  private rooms: Map<string, Set<string>> = new Map();
-  private readonly MAX_ROOM_CAPACITY = 3; // 최대 인원 수
+  private roomRepository = new RoomRepository();
 
   enterUser(userId: string, nickname: string): void {
     this.userService.createUser(userId, nickname);
@@ -30,14 +30,14 @@ export class RoomService {
   }
 
   joinRoom(room: string, userId: string): boolean {
-    if (!this.rooms.has(room)) {
-      this.rooms.set(room, new Set());
+    if (!this.getRoom(room)) {
+      this.roomRepository.save(room);
     }
 
-    const occupants = this.rooms.get(room);
+    const occupants = this.getRoom(room);
 
     // 당사자가 방에 참여하기 전의 입장자 수를 세기 때문에 >= 기호를 써야 함
-    if (occupants.size >= this.MAX_ROOM_CAPACITY) {
+    if (occupants.size >= 3) {
       console.log('방이 꽉 찼습니다.');
       return false;
     }
@@ -50,11 +50,12 @@ export class RoomService {
   }
 
   leaveRoom(room: string, userId: string): boolean {
-    if (!this.rooms.has(room)) {
+    if (!this.getRoom(room)) {
       return false;
     }
 
-    const occupants = this.rooms.get(room);
+    const occupants = this.getRoom(room);
+
     if (!occupants.has(userId)) {
       return false;
     }
@@ -68,23 +69,27 @@ export class RoomService {
   }
 
   getRoomUsers(room: string): string[] {
-    if (!this.rooms.has(room)) {
+    if (!this.getRoom(room)) {
       return [];
     }
 
-    return Array.from(this.rooms.get(room));
+    return Array.from(this.getRoom(room));
   }
 
   getRooms(): string[] {
-    return Array.from(this.rooms.keys());
+    return this.roomRepository.getAllRooms();
+  }
+
+  getRoom(room: string) {
+    return this.roomRepository.find(room);
   }
 
   getRoomCapacity(room: string): number {
-    if (!this.rooms.has(room)) {
+    if (!this.getRoom(room)) {
       return 0;
     }
 
-    return this.rooms.get(room).size;
+    return this.getRoom(room).size;
   }
 
   getUser(userId: string) {
