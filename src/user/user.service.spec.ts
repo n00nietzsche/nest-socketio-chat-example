@@ -26,7 +26,7 @@ describe('UserService', () => {
 
   it('findUser() 메서드는 올바른 ID 를 입력받아 생성된 사용자를 불러올 수 있다.', () => {
     service.createUser('n00nietzsche', 'Jake');
-    const foundUser = service.findUser('n00nietzsche');
+    const foundUser = service.getUser('n00nietzsche');
 
     expect(foundUser).toBeDefined();
     expect(foundUser.id).toBe('n00nietzsche');
@@ -40,9 +40,9 @@ describe('UserService', () => {
     expect(createdUser.id).toBe('n00nietzsche');
     expect(createdUser.nickname).toBe('Jake');
 
-    service.deleteUser('n00nietzsche');
+    service.removeUser('n00nietzsche');
 
-    expect(service.findUser('n00nietzsche')).toBeUndefined();
+    expect(service.getUser('n00nietzsche')).toBeUndefined();
   });
 
   it('createUser() 메서드는 ID가 없을 경우 에러를 발생시킨다.', () => {
@@ -56,15 +56,15 @@ describe('UserService', () => {
   });
 
   it('findUser() 메서드는 ID가 없을 경우 에러를 발생시킨다.', () => {
-    expect(() => service.findUser('')).toThrow('ID 를 입력해주세요.');
+    expect(() => service.getUser('')).toThrow('ID 를 입력해주세요.');
   });
 
   it('deleteUser() 메서드는 ID가 없을 경우 에러를 발생시킨다.', () => {
-    expect(() => service.deleteUser('')).toThrow('ID 를 입력해주세요.');
+    expect(() => service.removeUser('')).toThrow('ID 를 입력해주세요.');
   });
 
   it('deleteUser() 메서드는 존재하지 않는 사용자 ID를 입력받았을 경우 에러를 발생시킨다.', () => {
-    expect(() => service.deleteUser('nonexistent')).toThrow(
+    expect(() => service.removeUser('nonexistent')).toThrow(
       '사용자를 찾을 수 없습니다.',
     );
   });

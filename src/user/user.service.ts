@@ -17,7 +17,7 @@ export class UserService {
     return this.userRepository.createUser(id, nickname);
   }
 
-  findUser(id: string) {
+  getUser(id: string) {
     if (!id) {
       throw new Error('ID 를 입력해주세요.');
     }
@@ -25,7 +25,7 @@ export class UserService {
     return this.userRepository.findUser(id);
   }
 
-  deleteUser(id: string) {
+  removeUser(id: string) {
     if (!id) {
       throw new Error('ID 를 입력해주세요.');
     }
@@ -39,7 +39,7 @@ export class UserService {
     return this.userRepository.deleteUser(id);
   }
 
-  findUserIdByNickname(nickname: string) {
+  getUserIdByNickname(nickname: string) {
     if (!nickname) {
       throw new Error('닉네임을 입력해주세요.');
     }
