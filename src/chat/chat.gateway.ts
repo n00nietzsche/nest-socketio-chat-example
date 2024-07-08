@@ -8,6 +8,9 @@ import {
 import { Server, Socket } from 'socket.io';
 import { RoomService } from 'src/room/room.service';
 import { UserService } from 'src/user/user.service';
+import { MessageDto } from './dto/message.dto';
+import { JoinChatDto } from './dto/join-chat.dto';
+import { KickUserDto } from './dto/kick-user.dto';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -42,7 +45,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
-    const nickname = this.roomService.getUserNickname(client.id);
+    const { nickname } = this.userService.getUser(client.id);
     const leftRooms = this.roomService.leaveUser(client.id);
 
     leftRooms.forEach((room) => {
@@ -53,31 +56,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // ws://localhost:3000 로 연결 후 `message` 이벤트를 전송하면 payload 가 들어옴
   @SubscribeMessage('message')
-  handleMessage(
-    client: Socket,
-    payload: { room: string; message: string },
-  ): void {
+  handleMessage(client: Socket, payload: MessageDto): void {
+    // TODO: 페이로드 보고 룸 이름으로 받는지 아이디로 받는지 확인해보기
     console.log('Received payload:', payload);
 
     this.server.to(payload.room).emit('message', {
       room: payload.room,
       message: payload.message,
-      sender: this.roomService.getUserNickname(client.id),
+      sender: this.userService.getUser(client.id).nickname,
     });
 
     console.log(`Message sent to room ${payload.room}`);
   }
 
-  @SubscribeMessage('joinRoom')
-  handleJoinRoom(client: Socket, payload: { room: string }): void {
+  @SubscribeMessage('joinChat')
+  handleJoinRoom(client: Socket, payload: JoinChatDto): void {
     const { room } = payload;
     const joined = this.roomService.joinRoom(room, client.id);
 
     if (joined) {
       client.join(room);
-      client.emit('joinRoom', room);
+      client.emit('joinChat', room);
 
-      const nickname = this.roomService.getUserNickname(client.id);
+      const { nickname } = this.userService.getUser(client.id);
 
       this.notify(`"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`, room);
 
@@ -89,16 +90,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.disconnect();
   }
 
-  @SubscribeMessage('leaveRoom')
+  @SubscribeMessage('leaveChat')
   handleLeaveRoom(client: Socket, payload: { room: string }): void {
     const { room } = payload;
     const left = this.roomService.leaveRoom(room, client.id);
 
     if (left) {
       client.leave(room);
-      client.emit('leaveRoom', room);
+      client.emit('leaveChat', room);
 
-      const nickname = this.roomService.getUserNickname(client.id);
+      const { nickname } = this.userService.getUser(client.id);
 
       this.notify(`"${nickname}" 님이 "${room}" 방에서 퇴장하셨습니다.`, room);
 
@@ -110,7 +111,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('kickUser')
-  handleKickUser(client: Socket, payload: { nickname: string }): void {
+  handleKickUser(client: Socket, payload: KickUserDto): void {
     const { nickname } = payload;
     const userId = this.userService.getUserIdByNickname(nickname);
 

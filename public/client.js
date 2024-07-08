@@ -39,7 +39,7 @@ function activateChat(nickname, room) {
   const messages = document.getElementById('messages');
 
   socket.on('connect', () => {
-    socket.emit('joinRoom', { room });
+    socket.emit('joinChat', { room });
   });
 
   form.addEventListener('submit', (e) => {
