@@ -57,7 +57,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // ws://localhost:3000 로 연결 후 `message` 이벤트를 전송하면 payload 가 들어옴
   @SubscribeMessage('message')
   handleMessage(client: Socket, payload: MessageDto): void {
-    // TODO: 페이로드 보고 룸 이름으로 받는지 아이디로 받는지 확인해보기
     console.log('Received payload:', payload);
 
     this.server.to(payload.room).emit('message', {
