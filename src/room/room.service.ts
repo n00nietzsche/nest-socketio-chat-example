@@ -21,10 +21,6 @@ export class RoomService {
     return leftRooms;
   }
 
-  getUserNickname(userId: string): string {
-    return this.userService.getUser(userId).nickname;
-  }
-
   createRoom(roomName: string) {
     return this.roomRepository.save({
       name: roomName,
