@@ -4,6 +4,7 @@ import { UserService } from '../user/user.service';
 
 describe('RoomService', () => {
   let service: RoomService;
+  let userService: UserService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -11,9 +12,10 @@ describe('RoomService', () => {
     }).compile();
 
     service = module.get<RoomService>(RoomService);
+    userService = module.get<UserService>(UserService);
 
-    service.enterUser('user1', 'user1');
-    service.enterUser('user2', 'user2');
+    userService.createUser('user1', 'user1');
+    userService.createUser('user2', 'user2');
   });
 
   it('should be defined', () => {

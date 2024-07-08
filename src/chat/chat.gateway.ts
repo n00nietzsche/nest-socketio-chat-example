@@ -7,10 +7,14 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RoomService } from 'src/room/room.service';
+import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private readonly roomService: RoomService) {}
+  constructor(
+    private readonly roomService: RoomService,
+    private readonly userService: UserService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -33,7 +37,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    this.roomService.enterUser(client.id, nickname);
+    this.userService.createUser(client.id, nickname);
   }
 
   handleDisconnect(client: Socket) {
@@ -107,10 +111,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('kickUser')
   handleKickUser(client: Socket, payload: { nickname: string }): void {
-    console.log('payload', payload);
     const { nickname } = payload;
-    console.log(`Kicking user: ${nickname}`);
-    const userId = this.roomService.getUserIdByNickname(nickname);
+    const userId = this.userService.getUserIdByNickname(nickname);
 
     this.kickUser(userId);
   }
@@ -138,7 +140,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   kickUser(userId: string) {
-    const user = this.roomService.getUser(userId);
+    const user = this.userService.getUser(userId);
     const client = this.server.sockets.sockets.get(userId);
 
     if (client) {

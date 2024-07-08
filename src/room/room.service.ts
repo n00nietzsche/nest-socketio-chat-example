@@ -9,12 +9,8 @@ export class RoomService {
 
   private roomRepository = new RoomRepository();
 
-  enterUser(userId: string, nickname: string): void {
-    this.userService.createUser(userId, nickname);
-  }
-
   leaveUser(userId: string): string[] {
-    const user = this.getUser(userId);
+    const user = this.userService.getUser(userId);
     const leftRooms = [...user.joiningRooms];
 
     // 사용자가 참여 중인 모든 방에서 나간다.
@@ -22,12 +18,12 @@ export class RoomService {
       this.leaveRoom(room, userId);
     });
 
-    this.userService.deleteUser(userId);
+    this.userService.removeUser(userId);
     return leftRooms;
   }
 
   getUserNickname(userId: string): string {
-    return this.getUser(userId).nickname;
+    return this.userService.getUser(userId).nickname;
   }
 
   createRoom(roomName: string) {
@@ -52,7 +48,7 @@ export class RoomService {
 
     room.join(userId);
 
-    const user = this.getUser(userId);
+    const user = this.userService.getUser(userId);
     user.joinRoom(roomName);
 
     return true;
@@ -71,7 +67,7 @@ export class RoomService {
 
     room.leave(userId);
 
-    const user = this.getUser(userId);
+    const user = this.userService.getUser(userId);
     user.leaveRoom(roomName);
 
     return true;
@@ -93,14 +89,6 @@ export class RoomService {
 
   getRoomByName(roomName: string) {
     return this.roomRepository.findByName(roomName);
-  }
-
-  getUser(userId: string) {
-    return this.userService.findUser(userId);
-  }
-
-  getUserIdByNickname(nickname: string): string {
-    return this.userService.findUserIdByNickname(nickname);
   }
 
   getRoomCapacity(roomName: string): number {
