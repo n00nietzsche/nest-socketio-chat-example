@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { RoomRepository } from './repository/room.repository';
-import { uuid } from 'uuidv4';
 
 @Injectable()
 export class RoomService {
@@ -29,7 +28,6 @@ export class RoomService {
   createRoom(roomName: string) {
     return this.roomRepository.save({
       name: roomName,
-      id: uuid(),
     });
   }
 

@@ -2,6 +2,7 @@ import { RoomModel } from '../model/room.model';
 
 export class RoomRepository {
   private rooms: Map<string, RoomModel> = new Map();
+  private roomKey: number = 0;
 
   getAllRoomNames() {
     const roomNames = [];
@@ -28,7 +29,9 @@ export class RoomRepository {
     return null;
   }
 
-  save({ id, name }: { id: string; name: string }) {
+  save({ name }: { name: string }) {
+    const id = String(this.roomKey++);
+
     if (this.rooms.has(id)) {
       throw new Error('이미 존재하는 Room ID 입니다.');
     }
