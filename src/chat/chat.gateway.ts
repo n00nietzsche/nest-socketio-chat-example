@@ -7,7 +7,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { RoomService } from 'src/room/room.service';
 import { UserService } from 'src/user/user.service';
 import { MessageDto } from './dto/message.dto';
 import { JoinChatDto } from './dto/join-chat.dto';
@@ -23,7 +22,6 @@ export class ChatGateway
   server: Server;
 
   constructor(
-    private readonly roomService: RoomService,
     private readonly userService: UserService,
     private readonly chatService: ChatService,
   ) {}
@@ -35,14 +33,7 @@ export class ChatGateway
   handleConnection(client: Socket) {
     const { nickname } = client.handshake.query;
 
-    // nickname 이 입력되지 않았다면 연결을 끊는다.
-    if (!nickname) {
-      client.disconnect();
-      return;
-    }
-
-    // nickname 이 문자열이 아니면 연결을 끊는다.
-    if (typeof nickname !== 'string') {
+    if (!nickname || typeof nickname !== 'string') {
       client.disconnect();
       return;
     }
