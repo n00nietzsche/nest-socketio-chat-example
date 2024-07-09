@@ -132,6 +132,8 @@ export class ChatService {
 
       this.notify(`"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`, room);
       this.notifyParticipantCount(room);
+
+      return;
     }
 
     this.sendNotifyToUser('방이 꽉 찼습니다.', id);
