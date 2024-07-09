@@ -54,7 +54,6 @@ export class ChatGateway
     this.chatService.cleanClient(client);
   }
 
-  // ws://localhost:3000 로 연결 후 `message` 이벤트를 전송하면 payload 가 들어옴
   @SubscribeMessage('message')
   handleMessage(client: Socket, messageDto: MessageDto): void {
     this.chatService.sendMessage(client, messageDto);
