@@ -42,7 +42,6 @@ export class ChatGateway
   }
 
   handleDisconnect(client: Socket) {
-    this.chatService.notifyDisconnection(client);
     this.chatService.cleanClient(client);
   }
 

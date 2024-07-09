@@ -6,6 +6,7 @@ import { MessageDto } from './dto/message.dto';
 import { JoinChatDto } from './dto/join-chat.dto';
 import { LeaveChatDto } from './dto/leave-chat.dto';
 import { KickUserDto } from './dto/kick-user.dto';
+import { UserModel } from 'src/user/model/user.model';
 
 @Injectable()
 export class ChatService {
@@ -76,12 +77,12 @@ export class ChatService {
 
   /**
    * 클라이언트가 연결을 끊었을 때, 모든 방에 퇴장 알림을 보낸다.
-   * @param client 소켓 IO 클라이언트
+   * @param user 퇴장한 사용자
    */
-  notifyDisconnection(client: Socket) {
-    const { nickname, joiningRooms } = this.userService.getUser(client.id);
+  notifyDisconnection(user: UserModel, joinedRooms: string[]) {
+    const { nickname } = user;
 
-    joiningRooms.forEach((room) => {
+    joinedRooms.forEach((room) => {
       this.notify(`"${nickname}" 님이 퇴장하셨습니다.`, room);
       this.notifyParticipantCount(room);
     });
@@ -93,8 +94,10 @@ export class ChatService {
    */
   cleanClient(client: Socket) {
     const { id } = client;
+    const user = this.userService.getUser(id);
+    const joinedRooms = this.roomService.leaveUser(id);
 
-    this.roomService.leaveUser(id);
+    this.notifyDisconnection(user, joinedRooms);
     this.userService.removeUser(id);
   }
 
