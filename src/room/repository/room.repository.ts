@@ -5,7 +5,7 @@ export class RoomRepository {
   private roomKey: number = 0;
 
   getAllRoomNames() {
-    const roomNames = [];
+    const roomNames: string[] = [];
 
     this.rooms.forEach((room) => {
       roomNames.push(room.name);
