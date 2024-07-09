@@ -13,6 +13,7 @@ import { MessageDto } from './dto/message.dto';
 import { JoinChatDto } from './dto/join-chat.dto';
 import { KickUserDto } from './dto/kick-user.dto';
 import { ChatService } from './chat.service';
+import { LeaveChatDto } from './dto/leave-chat.dto';
 
 @WebSocketGateway()
 export class ChatGateway
@@ -65,24 +66,8 @@ export class ChatGateway
   }
 
   @SubscribeMessage('leaveChat')
-  handleLeaveRoom(client: Socket, payload: { room: string }): void {
-    const { room } = payload;
-    const left = this.roomService.leaveRoom(room, client.id);
-
-    if (left) {
-      client.leave(room);
-      client.emit('leaveChat', room);
-
-      const { nickname } = this.userService.getUser(client.id);
-
-      this.chatService.notify(
-        `"${nickname}" 님이 "${room}" 방에서 퇴장하셨습니다.`,
-        room,
-      );
-
-      this.chatService.notifyParticipantCount(room);
-      return;
-    }
+  handleLeaveRoom(client: Socket, leaveChatDto: LeaveChatDto): void {
+    this.chatService.leaveRoom(client, leaveChatDto);
   }
 
   @SubscribeMessage('kickUser')

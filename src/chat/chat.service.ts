@@ -4,6 +4,7 @@ import { RoomService } from 'src/room/room.service';
 import { UserService } from 'src/user/user.service';
 import { MessageDto } from './dto/message.dto';
 import { JoinChatDto } from './dto/join-chat.dto';
+import { LeaveChatDto } from './dto/leave-chat.dto';
 
 @Injectable()
 export class ChatService {
@@ -109,6 +110,11 @@ export class ChatService {
     });
   }
 
+  /**
+   * 클라이언트를 방에 참여시킨다.
+   * @param client 방에 참여할 클라이언트
+   * @param joinChatDto 방 참여 DTO
+   */
   joinRoom(client: Socket, joinChatDto: JoinChatDto) {
     const { room } = joinChatDto;
     const { id } = client;
@@ -123,11 +129,30 @@ export class ChatService {
 
       this.notify(`"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`, room);
       this.notifyParticipantCount(room);
-      return;
     }
 
     this.sendNotifyToUser('방이 꽉 찼습니다.', id);
 
     client.disconnect();
+  }
+
+  /**
+   * 클라이언트를 방에서 퇴장시킨다.
+   * @param client 방에서 퇴장시킬 클라이언트
+   * @param leaveChatDto 방 퇴장 DTO
+   */
+  leaveRoom(client: Socket, leaveChatDto: LeaveChatDto) {
+    const { room } = leaveChatDto;
+    const left = this.roomService.leaveRoom(room, client.id);
+
+    if (left) {
+      client.leave(room);
+      client.emit('leaveChat', room);
+
+      const { nickname } = this.userService.getUser(client.id);
+
+      this.notify(`"${nickname}" 님이 "${room}" 방에서 퇴장하셨습니다.`, room);
+      this.notifyParticipantCount(room);
+    }
   }
 }
