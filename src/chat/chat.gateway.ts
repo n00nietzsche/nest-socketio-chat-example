@@ -32,9 +32,6 @@ export class ChatGateway
   }
 
   handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
-    console.log('클라이언트로 부터 전달받은 데이터', client.handshake.query);
-
     const { nickname } = client.handshake.query;
 
     // nickname 이 입력되지 않았다면 연결을 끊는다.
@@ -53,13 +50,11 @@ export class ChatGateway
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
     const { nickname } = this.userService.getUser(client.id);
     const leftRooms = this.roomService.leaveUser(client.id);
 
     leftRooms.forEach((room) => {
       this.chatService.notify(`"${nickname}" 님이 퇴장하셨습니다.`, room);
-
       this.chatService.notifyParticipantCount(room);
     });
   }
@@ -67,15 +62,11 @@ export class ChatGateway
   // ws://localhost:3000 로 연결 후 `message` 이벤트를 전송하면 payload 가 들어옴
   @SubscribeMessage('message')
   handleMessage(client: Socket, payload: MessageDto): void {
-    console.log('Received payload:', payload);
-
     this.server.to(payload.room).emit('message', {
       room: payload.room,
       message: payload.message,
       sender: this.userService.getUser(client.id).nickname,
     });
-
-    console.log(`Message sent to room ${payload.room}`);
   }
 
   @SubscribeMessage('joinChat')
@@ -122,8 +113,6 @@ export class ChatGateway
       this.chatService.notifyParticipantCount(room);
       return;
     }
-
-    console.log(`${client.id} failed to leave a room: ${room}`);
   }
 
   @SubscribeMessage('kickUser')
