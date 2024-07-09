@@ -17,7 +17,6 @@ export class RoomService {
       this.leaveRoom(room, userId);
     });
 
-    this.userService.removeUser(userId);
     return leftRooms;
   }
 

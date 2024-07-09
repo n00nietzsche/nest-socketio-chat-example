@@ -50,13 +50,8 @@ export class ChatGateway
   }
 
   handleDisconnect(client: Socket) {
-    const { nickname } = this.userService.getUser(client.id);
-    const leftRooms = this.roomService.leaveUser(client.id);
-
-    leftRooms.forEach((room) => {
-      this.chatService.notify(`"${nickname}" 님이 퇴장하셨습니다.`, room);
-      this.chatService.notifyParticipantCount(room);
-    });
+    this.chatService.notifyDisconnection(client);
+    this.chatService.cleanClient(client);
   }
 
   // ws://localhost:3000 로 연결 후 `message` 이벤트를 전송하면 payload 가 들어옴
