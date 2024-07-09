@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { RoomService } from 'src/room/room.service';
 import { UserService } from 'src/user/user.service';
+import { MessageDto } from './dto/message.dto';
 
 @Injectable()
 export class ChatService {
@@ -90,5 +91,20 @@ export class ChatService {
 
     this.roomService.leaveUser(id);
     this.userService.removeUser(id);
+  }
+
+  /**
+   * MessageDto 를 파라미터로 받아 메시지를 보낸다.
+   * @param sender 송신 클라이언트
+   * @param messageDto 메시지를 보내기 위한 Data Transfer Object
+   */
+  sendMessage(sender: Socket, messageDto: MessageDto) {
+    const { room, message } = messageDto;
+
+    this.server.to(room).emit('message', {
+      room: room,
+      message: message,
+      sender: this.userService.getUser(sender.id).nickname,
+    });
   }
 }

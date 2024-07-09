@@ -56,12 +56,8 @@ export class ChatGateway
 
   // ws://localhost:3000 로 연결 후 `message` 이벤트를 전송하면 payload 가 들어옴
   @SubscribeMessage('message')
-  handleMessage(client: Socket, payload: MessageDto): void {
-    this.server.to(payload.room).emit('message', {
-      room: payload.room,
-      message: payload.message,
-      sender: this.userService.getUser(client.id).nickname,
-    });
+  handleMessage(client: Socket, messageDto: MessageDto): void {
+    this.chatService.sendMessage(client, messageDto);
   }
 
   @SubscribeMessage('joinChat')
