@@ -1,6 +1,7 @@
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -14,15 +15,21 @@ import { KickUserDto } from './dto/kick-user.dto';
 import { ChatService } from './chat.service';
 
 @WebSocketGateway()
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
+  @WebSocketServer()
+  server: Server;
+
   constructor(
     private readonly roomService: RoomService,
     private readonly userService: UserService,
     private readonly chatService: ChatService,
   ) {}
 
-  @WebSocketServer()
-  server: Server;
+  afterInit(server: Server) {
+    this.chatService.setServer(server);
+  }
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
@@ -51,13 +58,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const leftRooms = this.roomService.leaveUser(client.id);
 
     leftRooms.forEach((room) => {
-      this.chatService.notify(
-        this.server,
-        `"${nickname}" 님이 퇴장하셨습니다.`,
-        room,
-      );
+      this.chatService.notify(`"${nickname}" 님이 퇴장하셨습니다.`, room);
 
-      this.chatService.notifyParticipantCount(this.server, room);
+      this.chatService.notifyParticipantCount(room);
     });
   }
 
@@ -87,20 +90,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const { nickname } = this.userService.getUser(client.id);
 
       this.chatService.notify(
-        this.server,
         `"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`,
         room,
       );
 
-      this.chatService.notifyParticipantCount(this.server, room);
+      this.chatService.notifyParticipantCount(room);
       return;
     }
 
-    this.chatService.sendNotifyToUser(
-      this.server,
-      '방이 꽉 찼습니다.',
-      client.id,
-    );
+    this.chatService.sendNotifyToUser('방이 꽉 찼습니다.', client.id);
 
     client.disconnect();
   }
@@ -117,12 +115,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const { nickname } = this.userService.getUser(client.id);
 
       this.chatService.notify(
-        this.server,
         `"${nickname}" 님이 "${room}" 방에서 퇴장하셨습니다.`,
         room,
       );
 
-      this.chatService.notifyParticipantCount(this.server, room);
+      this.chatService.notifyParticipantCount(room);
       return;
     }
 
@@ -134,6 +131,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { nickname } = payload;
     const userId = this.userService.getUserIdByNickname(nickname);
 
-    this.chatService.kickUser(this.server, userId);
+    this.chatService.kickUser(userId);
   }
 }
