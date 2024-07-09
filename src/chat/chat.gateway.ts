@@ -60,28 +60,8 @@ export class ChatGateway
   }
 
   @SubscribeMessage('joinChat')
-  handleJoinRoom(client: Socket, payload: JoinChatDto): void {
-    const { room } = payload;
-    const joined = this.roomService.joinRoom(room, client.id);
-
-    if (joined) {
-      client.join(room);
-      client.emit('joinChat', room);
-
-      const { nickname } = this.userService.getUser(client.id);
-
-      this.chatService.notify(
-        `"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`,
-        room,
-      );
-
-      this.chatService.notifyParticipantCount(room);
-      return;
-    }
-
-    this.chatService.sendNotifyToUser('방이 꽉 찼습니다.', client.id);
-
-    client.disconnect();
+  handleJoinRoom(client: Socket, joinChatDto: JoinChatDto): void {
+    this.chatService.joinRoom(client, joinChatDto);
   }
 
   @SubscribeMessage('leaveChat')

@@ -3,6 +3,7 @@ import { Server, Socket } from 'socket.io';
 import { RoomService } from 'src/room/room.service';
 import { UserService } from 'src/user/user.service';
 import { MessageDto } from './dto/message.dto';
+import { JoinChatDto } from './dto/join-chat.dto';
 
 @Injectable()
 export class ChatService {
@@ -106,5 +107,27 @@ export class ChatService {
       message: message,
       sender: this.userService.getUser(sender.id).nickname,
     });
+  }
+
+  joinRoom(client: Socket, joinChatDto: JoinChatDto) {
+    const { room } = joinChatDto;
+    const { id } = client;
+
+    const joined = this.roomService.joinRoom(room, id);
+
+    if (joined) {
+      const { nickname } = this.userService.getUser(id);
+
+      client.join(room);
+      client.emit('joinChat', room);
+
+      this.notify(`"${nickname}" 님이 "${room}" 방에 입장하셨습니다.`, room);
+      this.notifyParticipantCount(room);
+      return;
+    }
+
+    this.sendNotifyToUser('방이 꽉 찼습니다.', id);
+
+    client.disconnect();
   }
 }
