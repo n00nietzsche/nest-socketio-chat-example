@@ -52,12 +52,12 @@ export class ChatGateway
   }
 
   @SubscribeMessage('joinChat')
-  handleJoinRoom(client: Socket, joinChatDto: JoinChatDto): void {
+  handleJoinChat(client: Socket, joinChatDto: JoinChatDto): void {
     this.chatService.joinRoom(client, joinChatDto);
   }
 
   @SubscribeMessage('leaveChat')
-  handleLeaveRoom(client: Socket, leaveChatDto: LeaveChatDto): void {
+  handleLeaveChat(client: Socket, leaveChatDto: LeaveChatDto): void {
     this.chatService.leaveRoom(client, leaveChatDto);
   }
 
