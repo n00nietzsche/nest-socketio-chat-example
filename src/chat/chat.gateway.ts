@@ -71,10 +71,7 @@ export class ChatGateway
   }
 
   @SubscribeMessage('kickUser')
-  handleKickUser(client: Socket, payload: KickUserDto): void {
-    const { nickname } = payload;
-    const userId = this.userService.getUserIdByNickname(nickname);
-
-    this.chatService.kickUser(userId);
+  handleKickUser(client: Socket, kickUserDto: KickUserDto): void {
+    this.chatService.kickUser(kickUserDto);
   }
 }

@@ -5,6 +5,7 @@ import { UserService } from 'src/user/user.service';
 import { MessageDto } from './dto/message.dto';
 import { JoinChatDto } from './dto/join-chat.dto';
 import { LeaveChatDto } from './dto/leave-chat.dto';
+import { KickUserDto } from './dto/kick-user.dto';
 
 @Injectable()
 export class ChatService {
@@ -58,7 +59,9 @@ export class ChatService {
    * 유저가 속했던 모든 방에 강퇴당했음을 알리고, 해당 유저와 연결을 끊는다.
    * @param userId 강퇴할 유저의 ID
    */
-  kickUser(userId: string) {
+  kickUser(kickUserDto: KickUserDto) {
+    const { nickname } = kickUserDto;
+    const userId = this.userService.getUserIdByNickname(nickname);
     const user = this.userService.getUser(userId);
     const client = this.server.sockets.sockets.get(userId);
 
