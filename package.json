@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@knaadh/nestjs-drizzle-better-sqlite3": "^1.0.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/mapped-types": "*",
@@ -27,6 +28,8 @@
     "@nestjs/platform-socket.io": "^10.3.9",
     "@nestjs/serve-static": "^4.0.2",
     "@nestjs/websockets": "^10.3.9",
+    "better-sqlite3": "^11.1.2",
+    "drizzle-orm": "^0.32.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "socket.io": "^4.7.5",
