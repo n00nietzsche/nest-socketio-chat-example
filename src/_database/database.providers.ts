@@ -9,6 +9,7 @@ export const databaseProviders = [
         database: './database.sqlite',
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
         logging: true,
+        synchronize: true,
       });
 
       return dataSource.initialize();
