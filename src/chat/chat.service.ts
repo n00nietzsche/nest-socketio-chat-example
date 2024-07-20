@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { RoomService } from 'src/room/room.service';
 import { UserService } from 'src/user/user.service';
@@ -7,6 +7,8 @@ import { JoinChatDto } from './dto/join-chat.dto';
 import { LeaveChatDto } from './dto/leave-chat.dto';
 import { KickUserDto } from './dto/kick-user.dto';
 import { UserModel } from 'src/user/model/user.model';
+import { Repository } from 'typeorm';
+import { Chat } from './entity/chat.entity';
 
 @Injectable()
 export class ChatService {
@@ -15,6 +17,8 @@ export class ChatService {
   constructor(
     private readonly roomService: RoomService,
     private readonly userService: UserService,
+    @Inject('CHAT_REPOSITORY')
+    private chatRepository: Repository<Chat>,
   ) {}
 
   setServer(server: Server) {
@@ -113,6 +117,13 @@ export class ChatService {
       room: room,
       message: message,
       sender: this.userService.getUser(sender.id).nickname,
+    });
+
+    this.chatRepository.save({
+      message,
+      nickname: this.userService.getUser(sender.id).nickname,
+      room,
+      createdAt: new Date(),
     });
   }
 
